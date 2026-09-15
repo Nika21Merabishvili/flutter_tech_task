@@ -91,7 +91,15 @@ class _ObjectEditScreenState extends State<ObjectEditScreen> {
       } else {
         await viewModel.update(ObjectItem(id: item.id, name: name, data: data));
       }
-      if (mounted) Navigator.pop(context);
+      if (!mounted) return;
+      // The messenger belongs to the app, so the SnackBar outlives this route
+      // and shows on the screen underneath.
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(item == null ? 'Created "$name"' : 'Saved "$name"'),
+        ),
+      );
+      Navigator.pop(context);
     } catch (e) {
       if (!mounted) return;
       setState(() => _isSaving = false);
