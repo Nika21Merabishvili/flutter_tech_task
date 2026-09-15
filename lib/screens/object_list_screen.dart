@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../objects_view_model.dart';
+import 'object_details_screen.dart';
 
 class ObjectListScreen extends StatefulWidget {
   const ObjectListScreen({super.key});
@@ -14,8 +15,6 @@ class _ObjectListScreenState extends State<ObjectListScreen> {
   @override
   void initState() {
     super.initState();
-    // load() notifies listeners synchronously, which would throw if it ran
-    // while the first frame is still building.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) context.read<ObjectsViewModel>().load();
     });
@@ -54,7 +53,6 @@ class _ObjectListScreenState extends State<ObjectListScreen> {
         ),
       );
     }
-    // Covers the first frame, before the post-frame load() has started.
     if (!viewModel.hasLoaded) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -70,6 +68,10 @@ class _ObjectListScreenState extends State<ObjectListScreen> {
         return ListTile(
           title: Text(item.name),
           subtitle: Text('ID: ${item.id}'),
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => ObjectDetailsScreen(item: item)),
+          ),
         );
       },
     );
