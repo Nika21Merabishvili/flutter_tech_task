@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../objects_view_model.dart';
 import 'object_details_screen.dart';
+import 'object_edit_screen.dart';
 
 class ObjectListScreen extends StatefulWidget {
   const ObjectListScreen({super.key});
@@ -26,6 +27,16 @@ class _ObjectListScreenState extends State<ObjectListScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Objects')),
       body: _buildBody(viewModel),
+      floatingActionButton: viewModel.hasLoaded
+          ? FloatingActionButton(
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const ObjectEditScreen()),
+              ),
+              tooltip: 'Add object',
+              child: const Icon(Icons.add),
+            )
+          : null,
     );
   }
 

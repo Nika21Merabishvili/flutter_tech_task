@@ -16,7 +16,6 @@ class ObjectsViewModel extends ChangeNotifier {
   String? get error => _error;
   List<ObjectItem> get items => _items;
 
-  
   Future<void> load({bool refresh = false}) async {
     if (_isLoading || (_hasLoaded && !refresh)) return;
 
@@ -33,5 +32,26 @@ class ObjectsViewModel extends ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     }
+  }
+
+  // Writes patch the cached list with the server's response instead of
+  // refetching: it saves quota, and the shared GET /objects listing doesn't
+  // include objects created through the API.
+  Future<void> create({
+    required String name,
+    Map<String, dynamic>? data,
+  }) async {
+    final created = await _client.create(name: name, data: data);
+    _items = List.unmodifiable([created, ..._items]);
+    notifyListeners();
+  }
+
+  Future<void> update(ObjectItem item) async {
+    final updated = await _client.update(item);
+    _items = List.unmodifiable([
+      for (final existing in _items)
+        existing.id == updated.id ? updated : existing,
+    ]);
+    notifyListeners();
   }
 }

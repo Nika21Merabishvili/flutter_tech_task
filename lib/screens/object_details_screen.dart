@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 
+import 'package:provider/provider.dart';
+
 import '../object_item.dart';
+import '../objects_view_model.dart';
+import 'object_edit_screen.dart';
 
 class ObjectDetailsScreen extends StatelessWidget {
   const ObjectDetailsScreen({super.key, required this.item});
@@ -9,17 +13,39 @@ class ObjectDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final data = item.data;
+    // A save replaces the cached entry, so show the latest copy rather than
+    // the one passed in when this screen was opened.
+    final current = context.select<ObjectsViewModel, ObjectItem>(
+      (viewModel) => viewModel.items.firstWhere(
+        (candidate) => candidate.id == item.id,
+        orElse: () => item,
+      ),
+    );
+    final data = current.data;
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
-      appBar: AppBar(title: Text(item.name)),
+      appBar: AppBar(
+        title: Text(current.name),
+        actions: [
+          IconButton(
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => ObjectEditScreen(item: current),
+              ),
+            ),
+            icon: const Icon(Icons.edit),
+            tooltip: 'Edit',
+          ),
+        ],
+      ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          Text(item.name, style: textTheme.titleLarge),
+          Text(current.name, style: textTheme.titleLarge),
           const SizedBox(height: 4),
-          Text('ID: ${item.id}', style: textTheme.bodyMedium),
+          Text('ID: ${current.id}', style: textTheme.bodyMedium),
           const Divider(height: 32),
           if (data == null || data.isEmpty)
             const Text('No additional data.')
